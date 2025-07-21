@@ -1,0 +1,8 @@
+--Create a repository
+--initialse the repostiory
+--node_modules,pacakge.json,pacajkage-lock.json'
+--Insatll express
+--Create a server
+--Listen on port1010
+--write request handlers
+--install nodemon
