@@ -3,6 +3,7 @@ const express = require("express");
 const requestRouter = express.Router();
 const ConnectionRequest = require("../model/connection");
 const User = require("../model/user");
+const sendEmail = require("../utils/emailService");
 
 requestRouter.post(
   "/request/send/:status/:toUserId",
@@ -41,7 +42,21 @@ requestRouter.post(
         toUserId,
         status,
       });
+
       const data = await connectionRequest.save();
+      if (status === "interested") {
+        const fromUser = await User.findById(fromUserId); // get sender details
+        if (!toUser.email) {
+          console.error("❌ No email found for recipient:", toUser._id);
+        } else {
+          await sendEmail(
+            toUser.email,
+            "Someone is interested in you 💌",
+            `${fromUser.firstName} is interested in connecting with you on DevLinker!`
+          );
+        }
+      }
+
       res.json({
         message: "Connection request send Successfully!!!",
         data,
@@ -56,31 +71,30 @@ requestRouter.post(
   authMiddleware,
   async (req, res) => {
     try {
-      const loggedInUser=req.user;
+      const loggedInUser = req.user;
       const { status, requestId } = req.params;
       const allowedStatus = ["accepted", "rejected"];
       if (!allowedStatus.includes(status)) {
         return res.status(404).send(status + "status is not valid");
       }
-      const connectionRequest=await ConnectionRequest.findOne({
-        _id:requestId,
-        toUserId:loggedInUser._id,
-        status:'interested'
-      })
-      if(!connectionRequest){
-        return res.status(404).send('Connection request not found');
+      const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+      if (!connectionRequest) {
+        return res.status(404).send("Connection request not found");
       }
-      connectionRequest.status=status;
-      const data=await connectionRequest.save();
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
       res.json({
-        message:'Connection request'+status,
-        data
-      })
+        message: "Connection request" + status,
+        data,
+      });
     } catch (err) {
       res.status(500).send("Internal Server Error " + err.message);
     }
   }
 );
-
 
 module.exports = requestRouter;

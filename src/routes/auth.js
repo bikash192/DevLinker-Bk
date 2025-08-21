@@ -29,7 +29,7 @@ authRouter.post("/sign", async (req, res) => {
     })
     res.json({message:"User added Successfully!!!",data:saveUser});
   } catch (err) {
-    res.status(500).send("Internal Server error" + err.message);
+    res.status(500).send("Internal Server error " + err.message);
   }
 });
 // login
