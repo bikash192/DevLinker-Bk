@@ -7,7 +7,7 @@ const authMiddleware=async(req,res,next)=>{
         if(!token){
             return res.status(404).send("Token is not Valid!!!");
         }
-        const decodObj=await jwt.verify(token,"Secret@123");
+        const decodObj=await jwt.verify(token,process.env.JWT_SECRET_KEY);
         const {_id}=decodObj;
 
         const user=await User.findById(_id);
