@@ -1,4 +1,6 @@
 require("dotenv").config();
+require("./utils/cronJob");
+// require("cronJobs").config();
 const mongoose = require("mongoose");
 const validator = require("validator");
 const express = require("express");
