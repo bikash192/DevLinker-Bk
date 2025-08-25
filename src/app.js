@@ -15,10 +15,7 @@ const { authMiddleware } = require("./middleware/authMiddleware");
 const cors = require("cors");
 
 app.use(
-  cors({
-    origin: "https://dev-linker-web.vercel.app",
-    credentials: true,
-  })
+  cors()
 );
 app.use(express.json());
 app.use(cookie());
