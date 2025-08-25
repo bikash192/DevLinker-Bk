@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const { subDays, startOfDay, endOfDay } = require("date-fns");
 const ConnectionRequest = require("../model/connection");
 const sendEmail = require("./emailService");
-cron.schedule("18 1 * * *", async () => {
+cron.schedule("0 8 * * *", async () => {
   // Send emails to all the people who got requests the previos day
   try {
     const yesterday = subDays(new Date(), 1);

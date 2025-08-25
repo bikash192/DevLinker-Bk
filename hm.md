@@ -88,3 +88,15 @@ Write a dummy auth middleware for admin
 - Thought process - post vs get
 - read about ref and populate
 - Create Get/user/request/reveived
+
+
+# Razorpay Payment Gateway Integration
+
+- Sign up on Razorpay and get kyc
+- create ui for payment page 
+- now create backend for this
+- Inialise razorpay in utils,
+- env file
+- Created order on razorpay
+- Created a Schema and model
+- save the oredr in payment collection
