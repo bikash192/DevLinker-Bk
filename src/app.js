@@ -29,6 +29,9 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
 
+app.get("/",(req,res)=>{
+  res.send("Server Running SuccessFully");
+})
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
