@@ -60,7 +60,7 @@ userRouter.get("/user/feed", authMiddleware, async (req, res) => {
     const user = await User.find({
       $and: [
         { _id: { $nin: Array.from(hideUsersFromFeed) } },
-        { _id: { $ne: loggedInUser } },
+        { _id: { $ne: loggedInUser._id } },
       ],
     }).select("firstName lastName photoUrl age gender about");
 
