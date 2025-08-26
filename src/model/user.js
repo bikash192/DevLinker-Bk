@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
       maxLength: 50,
-      minLength:4
+      minLength: 4,
     },
     lastName: {
       type: String,
@@ -39,20 +39,28 @@ const userSchema = mongoose.Schema(
         }
       },
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    membershipType: {
+      type: String,
+    },
+
     about: {
       type: String,
     },
     skills: {
       type: [String],
     },
-    photoUrl:{
-      type:String,
-    validate(value){
-      if(!validator.isURL(value)){
-        throw new Error('Url is not correct');
-      }
-    }
-    }
+    photoUrl: {
+      type: String,
+      validate(value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Url is not correct");
+        }
+      },
+    },
   },
   {
     timestamps: true,
@@ -60,7 +68,7 @@ const userSchema = mongoose.Schema(
 );
 userSchema.methods.getJWT = async function () {
   const user = this;
-  const token = await jwt.sign({ _id: user._id },process.env.JWT_SECRET_KEY, {
+  const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: "7d",
   });
   return token;
