@@ -48,6 +48,7 @@ paymentRouter.post("/payment/create", authMiddleware, async (req, res) => {
 paymentRouter.post("/payment/webhook", async (req, res) => {
   try {
     const webhookSignature = req.get("X-Razorpay-Signature");
+    console.log("Webhook Signature",webhookSignature);
     const isWebhookValid = validateWebhookSignature(
       JSON.stringify(req.body),
       webhookSignature,
@@ -56,17 +57,20 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     if (!isWebhookValid) {
       return res.status(404).json({ msg: "webhook signature is invalid" });
     }
+    console.log("Valid Webhook Signature")
     const paymentDetails=req.body.payload.pament.entity;
 
     const payment=await Payment.findOne({orderId:paymentDetails.order_id});
     payment.status=paymentDetails.status;
     await payment.save();
+    console.log("Payment Save");
 
     const user=await User.findOne({_id:payment.userId})
 
     user.isPremium=true;
     user.membershipType=payment.notes.membershipType;
     await user.save();
+    console.log("User Save");
 
     // Update my payment status in DB
 
