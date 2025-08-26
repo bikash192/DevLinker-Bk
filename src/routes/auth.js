@@ -24,9 +24,13 @@ authRouter.post("/sign", async (req, res) => {
     });
     const saveUser=await user.save();
     const token=await saveUser.getJWT();
-    res.cookie("token",token,{
-      expires:new Date(Date.now()+8*3600000)
-    })
+    res.cookie("token", token, {
+  httpOnly: true,
+  secure: true, // must be true in production (HTTPS)
+  sameSite: "None", // required for cross-origin cookies
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
+
     res.json({message:"User added Successfully!!!",data:saveUser});
   } catch (err) {
     res.status(500).send("Internal Server error " + err.message);
@@ -43,9 +47,13 @@ authRouter.post("/login", async (req, res) => {
     const validPassword = await user.validatePassword(password);
     if (validPassword) {
         const token=await user.getJWT();
-        res.cookie("token", token,{
-          expires:new Date(Date.now()+ 8*36000000)
-        })
+        res.cookie("token", token, {
+  httpOnly: true,
+  secure: true, // must be true in production (HTTPS)
+  sameSite: "None", // required for cross-origin cookies
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
+
         res.send(user);
     } 
     else {

@@ -19,13 +19,26 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
 
+const allowedOrigins = [
+  "https://dev-linker-web.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:5173"
+];
+
 app.use(
   cors({
-    origin: "https://dev-linker-web.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, origin);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PATCH", "DELETE"],
-    credentials: true,
+    credentials: true, // allow cookies for allowed origins
   })
 );
+
 app.use(express.json());
 app.use(cookie());
 
