@@ -58,7 +58,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
       return res.status(404).json({ msg: "webhook signature is invalid" });
     }
     console.log("Valid Webhook Signature")
-    const paymentDetails=req.body.payload.pament.entity;
+    const paymentDetails=req.body.payload.payment.entity;
 
     const payment=await Payment.findOne({orderId:paymentDetails.order_id});
     payment.status=paymentDetails.status;
@@ -78,16 +78,18 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
 
     // return success response to razorpay
     if (req.body.event === "payment.captured") {
+      console.log("Payment Captured Successfully")
     }
 
     if (req.body.event === "payment.failed") {
+      console.log("Payment Failed");
     }
 
     return res.status(200).json({ msg: "Webhook received Successfully" });
   } catch (err) {
     res
       .status(500)
-      .send("Internal Server Error " + process.env.RAORPAY_WEBHOOk_SECRET);
+      .send("Internal Server Error " + process.env.RAZORPAY_WEBHOOK_SECRET);
   }
 });
 module.exports = paymentRouter;
