@@ -71,6 +71,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     user.membershipType=payment.notes.membershipType;
     await user.save();
     console.log("User Save");
+    console.log(membershipType);
 
     // Update my payment status in DB
 
