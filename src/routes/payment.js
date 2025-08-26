@@ -59,6 +59,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     }
     console.log("Valid Webhook Signature")
     const paymentDetails=req.body.payload.payment.entity;
+    console.log(paymentDetails)
 
     const payment=await Payment.findOne({orderId:paymentDetails.order_id});
     payment.status=paymentDetails.status;
