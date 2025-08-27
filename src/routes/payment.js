@@ -48,7 +48,7 @@ paymentRouter.post("/payment/create", authMiddleware, async (req, res) => {
 paymentRouter.post("/payment/webhook", async (req, res) => {
   try {
     const webhookSignature = req.get("X-Razorpay-Signature");
-    console.log("Webhook Signature",webhookSignature);
+    console.log("Webhook Signature", webhookSignature);
     const isWebhookValid = validateWebhookSignature(
       JSON.stringify(req.body),
       webhookSignature,
@@ -57,22 +57,35 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
     if (!isWebhookValid) {
       return res.status(404).json({ msg: "webhook signature is invalid" });
     }
-    console.log("Valid Webhook Signature")
-    const paymentDetails=req.body.payload.payment.entity;
-    console.log(paymentDetails)
+    console.log("Valid Webhook Signature");
+    const paymentDetails = req.body.payload.payment.entity;
+    console.log(paymentDetails);
 
-    const payment=await Payment.findOne({orderId:paymentDetails.order_id});
-    payment.status=paymentDetails.status;
+    const payment = await Payment.findOne({ orderId: paymentDetails.order_id });
+    if (!payment) {
+      return res.status(404).json({ msg: "Payment not found" });
+    }
+    payment.status = paymentDetails.status;
     await payment.save();
     console.log("Payment Save");
+    if (paymentDetails.status === "captured") {
+      // Example: Update user membership or mark as paid
+      const user = await User.findById({ _id: payment.userId });
+      if (user) {
+        user.isPremium = true;
+        user.membershipType = payment.notes.membershipType;
+        // or any other field you want to update
+        await user.save();
+      }
+    }
 
-    const user=await User.findOne({_id:payment.userId})
+    // const user=await User.findOne({_id:payment.userId})
 
-    user.isPremium=true;
-    user.membershipType=payment.notes.membershipType;
-    await user.save();
-    console.log("User Save");
-    console.log(membershipType);
+    // user.isPremium=true;
+    // user.membershipType=payment.notes.membershipType;
+    // await user.save();
+    // console.log("User Save");
+    // console.log(membershipType);
 
     // Update my payment status in DB
 
@@ -80,7 +93,7 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
 
     // return success response to razorpay
     if (req.body.event === "payment.captured") {
-      console.log("Payment Captured Successfully")
+      console.log("Payment Captured Successfully");
     }
 
     if (req.body.event === "payment.failed") {
