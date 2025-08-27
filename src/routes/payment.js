@@ -107,4 +107,11 @@ paymentRouter.post("/payment/webhook", async (req, res) => {
       .send("Internal Server Error " + process.env.RAZORPAY_WEBHOOK_SECRET);
   }
 });
+paymentRouter.get("/premium/verify",authMiddleware,async(req,res)=>{
+  const user=req.user;
+  if(user.isPremium){
+    return res.json({isPremium:true});
+  }
+  return res.json({isPremium:false});
+})
 module.exports = paymentRouter;
