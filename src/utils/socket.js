@@ -1,3 +1,5 @@
+const { Server } = require("socket.io");
+
 const allowedOrigins = [
   "https://dev-linker-web.vercel.app",
   "http://localhost:3000",
@@ -5,7 +7,7 @@ const allowedOrigins = [
 ];
 
 const intialiseSocket = (server) => {
-  const io = socket(server, {
+  const io = new Server(server, {
     cors: {
       origin: function (origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
