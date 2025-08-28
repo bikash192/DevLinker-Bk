@@ -23,9 +23,9 @@ const intialiseSocket = (server) => {
     io.on("connection",(socket)=>{
         // Handle Events
 
-        socket.on("joinChat",({userId,targetUserId})=>{
-          const roomId=[userId,targetUserId].join("_");
-          console.log("Joining Room: "+ roomId);
+        socket.on("joinChat",({firstName,userId,targetUserId})=>{
+          const roomId=[userId,targetUserId].sort().join("_");
+          console.log(firstName+"JoinedRoom: "+ roomId);
           socket.join(roomId);
         })  
         socket.on("sendMessage",()=>{
