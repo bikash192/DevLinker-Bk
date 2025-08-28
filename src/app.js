@@ -18,6 +18,10 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
+const http=require('http');
+const intialiseSocket = require("./utils/socket");
+
+
 
 const allowedOrigins = [
   "https://dev-linker-web.vercel.app",
@@ -50,13 +54,16 @@ app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use('/',paymentRouter);
+const server=http.createServer(app);
+intialiseSocket(server);
+
 
 connectDB()
   .then(() => {
     console.log("Database Connected");
     const PORT = process.env.PORT || 7777;
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`🚀 Server is listening on Port ${PORT}`);
     });
   })

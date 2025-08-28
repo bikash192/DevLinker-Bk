@@ -1,37 +1,46 @@
 const express = require("express");
 const authRouter = express.Router();
 const bcrypt = require("bcrypt");
-const {validateSignUp} = require("../utils/validation");
+const { validateSignUp } = require("../utils/validation");
 const User = require("../model/user");
 
 // Signin
 authRouter.post("/sign", async (req, res) => {
   try {
     validateSignUp(req);
-    const { firstName, lastName, password, email,skills,photoUrl,age,gender,about } = req.body;
+    const {
+      firstName,
+      lastName,
+      password,
+      email,
+      skills,
+      photoUrl,
+      age,
+      gender,
+      about,
+    } = req.body;
     const hashPassword = await bcrypt.hash(password, 10);
     const user = await User({
       firstName: firstName,
       lastName: lastName,
       email: email,
       password: hashPassword,
-      skills:skills,
-      photoUrl:photoUrl,
-      age:age,
-      gender:gender,
-      about:about
-
+      skills: skills,
+      photoUrl: photoUrl,
+      age: age,
+      gender: gender,
+      about: about,
     });
-    const saveUser=await user.save();
-    const token=await saveUser.getJWT();
+    const saveUser = await user.save();
+    const token = await saveUser.getJWT();
     res.cookie("token", token, {
-  httpOnly: true,
-  secure: true, // must be true in production (HTTPS)
-  sameSite: "None", // required for cross-origin cookies
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-});
+      httpOnly: true,
+      secure: true, // must be true in production (HTTPS)
+      sameSite: "None", // required for cross-origin cookies
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
-    res.json({message:"User added Successfully!!!",data:saveUser});
+    res.json({ message: "User added Successfully!!!", data: saveUser });
   } catch (err) {
     res.status(500).send("Internal Server error " + err.message);
   }
@@ -46,20 +55,18 @@ authRouter.post("/login", async (req, res) => {
     }
     const validPassword = await user.validatePassword(password);
     if (validPassword) {
-        const token=await user.getJWT();
-        res.cookie("token", token, {
-  httpOnly: true,
-  secure: true, // must be true in production (HTTPS)
-  sameSite: "None", // required for cross-origin cookies
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-});
+      const token = await user.getJWT();
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true, // must be true in production (HTTPS)
+        sameSite: "None", // required for cross-origin cookies
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
 
-        res.send(user);
-    } 
-    else {
+      res.send(user);
+    } else {
       return res.status(404).send("Invalid Credentials");
     }
-   
   } catch (err) {
     res.status(500).send("Internal Server Error" + err.message);
   }
@@ -67,11 +74,11 @@ authRouter.post("/login", async (req, res) => {
 
 // logout
 
-authRouter.post('/logout',async(req,res)=>{
-  res.cookie("token",null,{
-    expires:new Date(Date.now())
-  })
-  res.send("Uses logout Sucessfully!!!")
-})
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+  res.send("Uses logout Sucessfully!!!");
+});
 
 module.exports = authRouter;

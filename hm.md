@@ -100,3 +100,7 @@ Write a dummy auth middleware for admin
 - Created order on razorpay
 - Created a Schema and model
 - save the oredr in payment collection
+
+
+# Real time chat using webSockets
+- Build the Ui for a char window on /char/:tragetUserID 
