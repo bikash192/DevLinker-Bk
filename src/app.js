@@ -33,8 +33,9 @@ app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin);
+        callback(null, true);   // ✅ allow the request
       } else {
+        console.error("CORS blocked for:", origin); // helpful for debugging
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -42,6 +43,7 @@ app.use(
     credentials: true, // allow cookies for allowed origins
   })
 );
+
 
 app.use(express.json());
 app.use(cookie());
