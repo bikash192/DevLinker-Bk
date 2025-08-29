@@ -17,30 +17,31 @@ const getSecretRoomId = ({ userId, targetUserId }) => {
 const intialiseSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: function (origin, callback) {
+      origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);   // ✅ allow
+          callback(null, true);  // ✅ allow if no origin (like Postman) or in list
         } else {
-          console.error("Socket.io CORS blocked for:", origin);
+          console.error("❌ Socket.io CORS blocked for:", origin);
           callback(new Error("Not allowed by CORS"));
         }
       },
-      methods: ["GET", "POST"],
+      methods: ["GET", "POST", "OPTIONS"], // ✅ include OPTIONS for preflights
       credentials: true,
     },
   });
 
   io.on("connection", (socket) => {
-    // Handle Events
+    console.log("✅ New socket connection", socket.id);
+
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
-      const roomId = getSecretRoomId({ userId, targetUserId });  // ✅ fix argument
-      console.log(firstName + " joined room: " + roomId);
+      const roomId = getSecretRoomId({ userId, targetUserId });
+      console.log(`👤 ${firstName} joined room: ${roomId}`);
       socket.join(roomId);
     });
 
     socket.on("sendMessage", ({ firstName, userId, targetUserId, text, photoUrl }) => {
-      const roomId = getSecretRoomId({ userId, targetUserId });  // ✅ fix argument
-      console.log(`${firstName}: ${text}`);
+      const roomId = getSecretRoomId({ userId, targetUserId });
+      console.log(`💬 ${firstName}: ${text}`);
 
       const messageData = {
         firstName,
@@ -54,7 +55,7 @@ const intialiseSocket = (server) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected");
+      console.log("❌ User disconnected", socket.id);
     });
   });
 };

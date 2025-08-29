@@ -33,16 +33,20 @@ app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);   // ✅ allow the request
+        callback(null, true); // allow request
       } else {
-        console.error("CORS blocked for:", origin); // helpful for debugging
+        console.error("CORS blocked for:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-    credentials: true, // allow cookies for allowed origins
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"], // ✅ add OPTIONS
+    credentials: true,
   })
 );
+
+// ✅ handle preflight requests globally
+app.options("*", cors());
+
 
 
 app.use(express.json());
