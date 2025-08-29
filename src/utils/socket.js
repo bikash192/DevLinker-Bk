@@ -1,11 +1,17 @@
 const { Server } = require("socket.io");
-
+const crypto=require('crypto');
 const allowedOrigins = [
   "https://dev-linker-web.vercel.app",
   "http://localhost:3000",
   "http://localhost:5173",
 ];
 
+const getSecretRoomId=({userId,targetUserId})=>{
+  return crypto
+  .createHash("sha256")
+  .update([userId,targetUserId].sort().join("_"))
+  .digest("hex");
+}
 const intialiseSocket = (server) => {
   const io = new Server(server, {
     cors: {
@@ -24,13 +30,13 @@ const intialiseSocket = (server) => {
   io.on("connection", (socket) => {
     // Handle Events
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
-      const roomId = [userId, targetUserId].sort().join("_");
+      const roomId = getSecretRoomId(userId,targetUserId);
       console.log(firstName + " joined room: " + roomId);
       socket.join(roomId);
     });
 
     socket.on("sendMessage", ({ firstName, userId, targetUserId, text, photoUrl }) => {
-      const roomId = [userId, targetUserId].sort().join("_");
+      const roomId = getSecretRoomId(userId,targetUserId)
       console.log(`${firstName}: ${text}`);
 
       const messageData = {
