@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const crypto = require("crypto");
+const Chat = require("../model/chat");
 
 const allowedOrigins = [
   "https://dev-linker-web.vercel.app",
@@ -19,7 +20,7 @@ const intialiseSocket = (server) => {
     cors: {
       origin: function (origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);   // ✅ allow
+          callback(null, true);
         } else {
           console.error("Socket.io CORS blocked for:", origin);
           callback(new Error("Not allowed by CORS"));
@@ -31,30 +32,63 @@ const intialiseSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    // Handle Events
+    console.log("✅ Socket connected:", socket.id);
+
+    // User joins room
     socket.on("joinChat", ({ firstName, userId, targetUserId }) => {
-      const roomId = getSecretRoomId({ userId, targetUserId });  // ✅ fix argument
-      console.log(firstName + " joined room: " + roomId);
+      const roomId = getSecretRoomId({ userId, targetUserId });
+      console.log(`${firstName} joined room: ${roomId}`);
       socket.join(roomId);
     });
 
-    socket.on("sendMessage", ({ firstName, userId, targetUserId, text, photoUrl }) => {
-      const roomId = getSecretRoomId({ userId, targetUserId });  // ✅ fix argument
-      console.log(`${firstName}: ${text}`);
+    // Send message
+    socket.on(
+      "sendMessage",
+      async ({ firstName, userId, targetUserId, text, photoUrl }) => {
+        try {
+          const roomId = getSecretRoomId({ userId, targetUserId });
+          console.log(`💬 ${firstName}: ${text}`);
 
-      const messageData = {
-        firstName,
-        userId,
-        text,
-        photoUrl: photoUrl || "https://img.daisyui.com/images/profile/demo/kenobee@192.webp",
-        createdAt: new Date().toISOString(),
-      };
+          // find existing chat between users
+          let chat = await Chat.findOne({
+            participants: { $all: [userId, targetUserId] },
+          });
 
-      io.to(roomId).emit("messageReceived", messageData);
-    });
+          // create if not exists
+          if (!chat) {
+            chat = new Chat({
+              participants: [userId, targetUserId],
+              messages: [],
+            });
+          }
+
+          // push new message
+          chat.messages.push({
+            senderId: userId,
+            text,
+            status: "Sent",
+          });
+
+          await chat.save();
+
+          // emit message back to both users in the room
+          io.to(roomId).emit("messageReceived", {
+            firstName,
+            userId,
+            text,
+            photoUrl:
+              photoUrl ||
+              "https://img.daisyui.com/images/profile/demo/kenobee@192.webp",
+            createdAt: new Date().toISOString(),
+          });
+        } catch (err) {
+          console.error("❌ Error while sending message:", err);
+        }
+      }
+    );
 
     socket.on("disconnect", () => {
-      console.log("User disconnected");
+      console.log("❌ User disconnected:", socket.id);
     });
   });
 };
