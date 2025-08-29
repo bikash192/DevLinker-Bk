@@ -46,6 +46,12 @@ const intialiseSocket = (server) => {
       "sendMessage",
       async ({ firstName, userId, targetUserId, text, photoUrl }) => {
         try {
+          if (!text || text.trim().length < 2) {
+            return; // don't save invalid messages
+          }
+          if (!/[a-zA-Z0-9]/.test(text)) {
+            return; // block messages without meaningful content
+          }
           const roomId = getSecretRoomId({ userId, targetUserId });
           console.log(`💬 ${firstName}: ${text}`);
 
