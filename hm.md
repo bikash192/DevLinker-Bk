@@ -103,4 +103,17 @@ Write a dummy auth middleware for admin
 
 
 # Real time chat using webSockets
-- Build the Ui for a char window on /char/:tragetUserID 
+Build the Ui for a char window on /char/:tragetUserID
+- Install `socket.io` library.
+- Create a utility file `utils/socket.js` to handle socket logic.
+- Integrate Socket.IO with the existing Express HTTP server.
+- Create a `/routes/chat.js` to manage chat-related API endpoints.
+- Bug->auth in web sockets
+- if i am not frient then i should not be able to send message
+- Show green Symbol when online ??? last seen also like 2 hours ago
+- Limit messages when fetching form db and build pagination like when i scoll 
+
+- Project ideas Tic toe 
+- Project ideas chess game
+- Project ideas type racer game
+

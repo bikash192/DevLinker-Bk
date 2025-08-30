@@ -1,6 +1,7 @@
 const { Server } = require("socket.io");
 const crypto = require("crypto");
 const Chat = require("../model/chat");
+const ConnectionRequest=require('../model/connection')
 
 const allowedOrigins = [
   "https://dev-linker-web.vercel.app",
@@ -49,6 +50,18 @@ const intialiseSocket = (server) => {
           
           const roomId = getSecretRoomId({ userId, targetUserId });
           console.log(`💬 ${firstName}: ${text}`);
+
+
+          // check userId and targetUserId  are frnds
+          const connection=await ConnectionRequest.findOne({
+            $or:[
+              {fromUserId:userId,toUserId:targetUserId,status:"accepted"},
+              {fromUserId:targetUserId,toUserId:userId,status:"accepted"}
+            ]
+          })
+          if(!connection){
+            return socket.emit("error",{message:"You are not connected yet"})
+          }
 
           // find existing chat between users
           let chat = await Chat.findOne({
